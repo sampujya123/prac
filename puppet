@@ -1,5 +1,5 @@
-wget https://apt.puppet.com/puppet-release-bionic.deb
-sudo dpkg -i puppet-release-bionic.deb
+wget https://apt.puppet.com/puppet8-release-bookworm.deb
+sudo dpkg -i puppet8-release-bookworm.deb
 sudo apt update
 sudo apt install puppetserver -y
 sudo systemctl start puppetserver
