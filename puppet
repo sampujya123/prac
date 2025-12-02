@@ -1,0 +1,62 @@
+wget https://apt.puppet.com/puppet-release-bionic.deb
+sudo dpkg -i puppet-release-bionic.deb
+sudo apt update
+sudo apt install puppetserver -y
+sudo systemctl start puppetserver
+sudo systemctl enable puppetserver
+sudo nano /etc/puppetlabs/puppet/puppet.conf
+put the below on in it
+
+[agent]
+server = hostname
+environment = production
+runinterval = 30m
+
+ctrl+x , Y, enter
+
+# Start Puppet Server
+sudo systemctl start puppetserver
+sudo systemctl enable puppetserver
+
+# Start Puppet Agent
+sudo systemctl start puppet
+sudo systemctl enable puppet
+
+sudo /opt/puppetlabs/bin/puppet agent --test
+
+
+10
+puppet –version
+mkdir -p ~/puppet-demo/modules/webserver/{manifests,lib/puppet/functions/webserver}
+nano ~/puppet-demo/modules/webserver/manifests/init.pp
+class webserver {
+  package { 'apache2':
+    ensure => installed,
+  }
+
+  service { 'apache2':
+    ensure => running,
+    enable => true,
+  }
+
+  file { '/var/www/html/index.html':
+    ensure  => file,
+    content => "<h1>Hello from Puppet Webserver!</h1>",
+  }
+
+  # Call custom function (Puppet 8)
+  $message = webserver::greet()
+  notify { $message: }
+}
+
+nano ~/puppet-demo/modules/webserver/lib/puppet/functions/webserver/greet.rb
+Puppet::Functions.create_function(:'webserver::greet') do
+  def greet()
+    "Webserver setup done!"
+  end
+end
+
+nano ~/puppet-demo/site.pp
+include webserver
+
+sudo /opt/puppetlabs/bin/puppet apply /home/hostname/puppet-demo/site.pp --modulepath=/home/hostname/puppet-demo/modules --debug
